@@ -2,8 +2,8 @@
 
 import { Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import { Message, MessageContent } from "@/app/wolfie/_components/message";
+import type { PromptInputMessage } from "@/app/wolfie/_components/prompt-input";
 import {
   PromptInput,
   PromptInputBody,
@@ -11,7 +11,7 @@ import {
   PromptInputProvider,
   PromptInputSubmit,
   PromptInputTextarea,
-} from "@/components/ai-elements/prompt-input";
+} from "@/app/wolfie/_components/prompt-input";
 import { Button } from "@/components/ui/button";
 
 export type UIMessage = {
