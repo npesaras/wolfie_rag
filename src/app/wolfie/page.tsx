@@ -13,7 +13,6 @@ import {
   PromptInputTextarea,
 } from "@/app/wolfie/_components/prompt-input";
 import { Button } from "@/components/ui/button";
-import { AILoadingState } from "@/app/wolfie/_components/ai-loading-state";
 import {
   PromptInputActionMenu,
   PromptInputActionMenuContent,
@@ -22,6 +21,9 @@ import {
   usePromptInputAttachments,
 } from "@/app/wolfie/_components/prompt-input";
 import { Paperclip } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const AILoadingState = dynamic(() => import("@/app/wolfie/_components/ai-loading-state").then(mod => mod.AILoadingState));
 
 const FileUploadMenu = () => {
   const attachments = usePromptInputAttachments();

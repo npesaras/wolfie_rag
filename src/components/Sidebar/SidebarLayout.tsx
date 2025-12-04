@@ -3,6 +3,7 @@
 import { SignOutButton } from "@clerk/nextjs";
 import { BookOpen, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -35,6 +36,8 @@ export function DashboardSidebar({
 }: {
   user?: DashboardLayoutProps["user"];
 }) {
+  const pathname = usePathname();
+
   const menuItems = [
     {
       title: "Dashboard",
@@ -60,37 +63,45 @@ export function DashboardSidebar({
 
   return (
     <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">Wolfie</span>
+      <SidebarHeader className="p-4">
+        <div className="flex items-center gap-2 px-2">
+          <span className="text-xl font-bold text-primary">Wolfie</span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sm font-medium text-muted-foreground px-4 py-2">Main</SidebarGroupLabel>
           <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.url}>
-                <SidebarMenuButton asChild>
-                  <Link href={item.url}>
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {menuItems.map((item) => {
+              const isActive = pathname === item.url || pathname?.startsWith(item.url + "/");
+              return (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton 
+                    asChild 
+                    size="lg" 
+                    isActive={isActive}
+                    className="text-base font-medium transition-colors hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary"
+                  >
+                    <Link href={item.url}>
+                      <item.icon className="!h-5 !w-5" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="p-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex flex-col gap-2 w-full">
               {user && (
-                <div className="px-2 py-2 text-sm">
-                  <p className="font-medium truncate">
+                <div className="px-2 py-3 mb-2 rounded-lg bg-muted/50 border border-border/50">
+                  <p className="font-semibold text-sm truncate text-foreground">
                     {user.firstName} {user.lastName}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
@@ -100,11 +111,10 @@ export function DashboardSidebar({
               )}
               <SignOutButton redirectUrl="/login">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start"
+                  variant="outline"
+                  className="w-full justify-start text-muted-foreground hover:text-primary hover:border-primary/50"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign Out</span>
                 </Button>
               </SignOutButton>
