@@ -1,6 +1,5 @@
 "use client";
 import { motion } from "motion/react";
-import React from "react";
 
 export const LoaderOne = () => {
   const transition = (x: number) => {
