@@ -26,7 +26,7 @@ async def query_rag(
         answer, sources = await answer_question(
             db=db,
             question=request.question,
-            top_k=request.top_k or 5
+            top_k=request.top_k or 10  # Increased default for better accuracy
         )
 
         return QueryResponse(

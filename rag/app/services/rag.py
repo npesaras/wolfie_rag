@@ -1,4 +1,4 @@
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_ollama import ChatOllama, OllamaEmbeddings
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, text
 from app.models.document import DocumentChunk
@@ -6,90 +6,128 @@ from app.core.config import settings
 from app.schemas.document import SourceChunk
 from typing import List, Tuple
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
-# Initialize models
-embeddings_model = GoogleGenerativeAIEmbeddings(
-    model=settings.embedding_model,
-    google_api_key=settings.google_api_key
-)
+# Lazy initialization for models (singleton pattern)
+_embeddings_model = None
+_chat_model = None
 
-chat_model = ChatGoogleGenerativeAI(
-    model=settings.chat_model,
-    google_api_key=settings.google_api_key,
-    temperature=0.7
-)
+def get_embeddings_model():
+    """Get or create embeddings model (singleton)."""
+    global _embeddings_model
+    if _embeddings_model is None:
+        _embeddings_model = OllamaEmbeddings(
+            model=settings.embedding_model,
+            base_url=settings.ollama_base_url
+        )
+    return _embeddings_model
+
+def get_chat_model():
+    """Get or create chat model (singleton)."""
+    global _chat_model
+    if _chat_model is None:
+        _chat_model = ChatOllama(
+            model=settings.chat_model,
+            base_url=settings.ollama_base_url,
+            temperature=0.2,  # Lower temperature for faster, more focused responses
+            num_ctx=2048,  # Reduced context for faster processing
+            num_predict=128,  # Shorter responses to prevent timeouts
+            top_p=0.85  # Focus on most likely tokens for faster generation
+        )
+    return _chat_model
 
 async def retrieve_chunks(
     db: AsyncSession,
     question: str,
-    top_k: int = 5
+    top_k: int = 10  # Increased for better accuracy
 ) -> List[Tuple[DocumentChunk, float]]:
     """
     Retrieve most similar chunks using pgvector cosine similarity.
     Returns list of (chunk, similarity_score) tuples.
     """
+    start_time = time.time()
     # Create embedding for the question
+    embeddings_model = get_embeddings_model()
     question_embedding = await embeddings_model.aembed_query(question)
+    embedding_time = time.time() - start_time
+    logger.debug(f"Embedding: {embedding_time:.2f}s")  # Use debug level
+
+    # Convert embedding list to pgvector format string
+    embedding_str = str(question_embedding)
 
     # Query using pgvector cosine similarity
+    search_start = time.time()
     query = text("""
         SELECT
-            id, doc_id, chunk_id, content, metadata,
-            1 - (embedding <=> :query_embedding) as similarity
+            id, doc_id, chunk_id, content, chunk_metadata,
+            1 - (embedding <=> CAST(:query_embedding AS vector)) as similarity
         FROM document_chunks
         WHERE embedding IS NOT NULL
-        ORDER BY embedding <=> :query_embedding
+        ORDER BY embedding <=> CAST(:query_embedding AS vector)
         LIMIT :top_k
     """)
 
     result = await db.execute(
         query,
-        {"query_embedding": question_embedding, "top_k": top_k}
+        {"query_embedding": embedding_str, "top_k": top_k}
     )
 
     rows = result.fetchall()
+    search_time = time.time() - search_start
+    logger.debug(f"Search: {search_time:.2f}s")  # Use debug level
 
-    chunks_with_similarity = []
-    for row in rows:
-        chunk = DocumentChunk(
-            id=row[0],
-            doc_id=row[1],
-            chunk_id=row[2],
-            content=row[3],
-            metadata=row[4]
+    # Build chunks more efficiently
+    chunks_with_similarity = [
+        (
+            DocumentChunk(
+                id=row[0],
+                doc_id=row[1],
+                chunk_id=row[2],
+                content=row[3],
+                chunk_metadata=row[4]
+            ),
+            row[5]  # similarity
         )
-        similarity = row[5]
-        chunks_with_similarity.append((chunk, similarity))
+        for row in rows
+    ]
 
     return chunks_with_similarity
 
 async def answer_question(
     db: AsyncSession,
     question: str,
-    top_k: int = 5
+    top_k: int = 10  # Increased for better accuracy
 ) -> Tuple[str, List[SourceChunk]]:
     """
     Answer a question using RAG:
     1. Retrieve relevant chunks
     2. Build context
-    3. Generate answer with Gemini
+    3. Generate answer with Ollama
 
     Returns (answer, sources)
     """
+    total_start = time.time()
     # Retrieve relevant chunks
-    logger.info(f"Retrieving top {top_k} chunks for question")
+    logger.info(f"Query: '{question[:50]}{'...' if len(question) > 50 else ''}' (top_k={top_k})")
     chunks_with_sim = await retrieve_chunks(db, question, top_k)
 
     if not chunks_with_sim:
         return "I don't have enough information to answer this question.", []
 
-    # Build context from chunks
+    # Filter chunks by similarity threshold (more inclusive for accuracy)
+    similarity_threshold = 0.25  # Lower threshold for better recall
+    relevant_chunks = [(chunk, sim) for chunk, sim in chunks_with_sim if sim >= similarity_threshold]
+
+    if not relevant_chunks:
+        return "I don't have enough information to answer this question.", []
+
+    logger.info(f"Using {len(relevant_chunks)} chunks with similarity >= {similarity_threshold}")    # Build context from chunks
     context_parts = []
     sources = []
 
-    for idx, (chunk, similarity) in enumerate(chunks_with_sim, 1):
+    for idx, (chunk, similarity) in enumerate(relevant_chunks, 1):
         context_parts.append(f"[{idx}] {chunk.content}")
         sources.append(SourceChunk(
             doc_id=chunk.doc_id,
@@ -100,24 +138,22 @@ async def answer_question(
 
     context = "\n\n".join(context_parts)
 
-    # Generate answer with Gemini
-    prompt = f"""You are a helpful assistant that answers questions based on the provided context.
-
-Context:
+    # Generate answer with Ollama
+    prompt = f"""Context:
 {context}
 
 Question: {question}
 
-Instructions:
-- Answer the question using only information from the context above
-- If the context doesn't contain enough information, say so
-- Be concise and accurate
-- Reference specific sources using [1], [2], etc. when applicable
+Provide a concise, direct answer (2-3 sentences) using ONLY the context information. Be specific and accurate."""
 
-Answer:"""
-
-    logger.info("Generating answer with Gemini")
+    llm_start = time.time()
+    chat_model = get_chat_model()
     response = await chat_model.ainvoke(prompt)
+    llm_time = time.time() - llm_start
+
     answer = response.content
+    total_time = time.time() - total_start
+
+    logger.info(f"RAG complete: {total_time:.2f}s (LLM: {llm_time:.2f}s, {len(relevant_chunks)} chunks used)")
 
     return answer, sources

@@ -5,12 +5,12 @@ class Settings(BaseSettings):
     # Database
     database_url: str
 
-    # Google AI
-    google_api_key: str
+    # Ollama settings
+    ollama_base_url: str
 
     # Model settings
-    embedding_model: str = "models/embedding-001"
-    chat_model: str = "gemini-1.5-flash"
+    embedding_model: str = "nomic-embed-text"
+    chat_model: str = "llama3.2"
 
     # RAG settings
     chunk_size: int = 1000
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     source_dir: Path = Path("/app/data/source")
 
     # File settings
-    allowed_extensions: list = [".pdf", ".docx", ".txt", ".pptx"]
+    allowed_extensions: list = [".pdf", ".docx", ".pptx", ".html", ".md", ".csv", ".xlsx"]
     max_file_size: int = 10 * 1024 * 1024  # 10MB
 
     model_config = SettingsConfigDict(

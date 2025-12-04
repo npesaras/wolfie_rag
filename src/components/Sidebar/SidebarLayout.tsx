@@ -120,12 +120,12 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <DashboardSidebar user={user} />
-      <main className="w-full">
-        <div className="flex items-center justify-between border-b p-4">
+      <main className="flex h-screen w-full flex-col overflow-hidden">
+        <div className="flex flex-shrink-0 items-center justify-between border-b p-4">
           <SidebarTrigger />
           <div className="text-sm text-muted-foreground">Dashboard</div>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </main>
     </SidebarProvider>
   );

@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     doc_id VARCHAR(255) NOT NULL,
     chunk_id INTEGER NOT NULL,
     content TEXT NOT NULL,
-    embedding vector(768),  -- Gemini embedding dimension
-    metadata JSONB,
+    embedding vector(768),  -- Ollama nomic-embed-text dimension
+    chunk_metadata JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(doc_id, chunk_id)
 );
