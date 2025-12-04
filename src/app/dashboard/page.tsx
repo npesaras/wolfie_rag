@@ -25,7 +25,7 @@ export default async function DashboardPage() {
       <div className="relative z-10">
         <div className="space-y-10 pb-8">
           {/* Welcome Section */}
-          <div className="bg-linear-to-br from-primary/10 to-sidebar/10 rounded-xl p-8 border border-primary/20">
+          <div className="bg-gradient-to-br from-primary/10 to-sidebar/10 rounded-xl p-8 border border-primary/20">
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-5xl font-bold text-foreground mb-2">

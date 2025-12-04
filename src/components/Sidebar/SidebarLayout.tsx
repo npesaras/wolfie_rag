@@ -125,7 +125,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           <SidebarTrigger />
           <div className="text-sm text-muted-foreground">Dashboard</div>
         </div>
-        <div className="flex-1 overflow-hidden">{children}</div>
+        <div className="flex-1 overflow-auto p-8">{children}</div>
       </main>
     </SidebarProvider>
   );
