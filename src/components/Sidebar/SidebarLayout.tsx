@@ -1,7 +1,7 @@
 "use client";
 
 import { SignOutButton } from "@clerk/nextjs";
-import { BookOpen, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
+import { Archive, BookOpen, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export function DashboardSidebar({
     {
       title: "CCS Resources",
       url: "/knowledge-base",
-      icon: BookOpen,
+      icon: Archive,
     },
     {
       title: "Ask Wolfie",
@@ -63,28 +63,31 @@ export function DashboardSidebar({
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2 px-2">
-          <span className="text-xl font-bold text-primary">Wolfie</span>
+      <SidebarHeader>
+        <div className="flex items-center gap-2">
+          <span className="font-semibold">CCS Hub</span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sm font-medium text-muted-foreground px-4 py-2">Main</SidebarGroupLabel>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarMenu>
             {menuItems.map((item) => {
-              const isActive = pathname === item.url || pathname?.startsWith(item.url + "/");
+              const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url));
               return (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton 
-                    asChild 
-                    size="lg" 
+                  <SidebarMenuButton
+                    asChild
                     isActive={isActive}
-                    className="text-base font-medium transition-colors hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary"
+                    className={`h-12 px-4 text-base font-medium transition-colors ${
+                      isActive
+                        ? "bg-primary/10 text-primary border-r-2 border-primary"
+                        : "hover:bg-muted/50"
+                    }`}
                   >
                     <Link href={item.url}>
-                      <item.icon className="!h-5 !w-5" />
+                      <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -95,13 +98,13 @@ export function DashboardSidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex flex-col gap-2 w-full">
               {user && (
-                <div className="px-2 py-3 mb-2 rounded-lg bg-muted/50 border border-border/50">
-                  <p className="font-semibold text-sm truncate text-foreground">
+                <div className="px-2 py-2 text-sm">
+                  <p className="font-medium truncate">
                     {user.firstName} {user.lastName}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
@@ -111,10 +114,11 @@ export function DashboardSidebar({
               )}
               <SignOutButton redirectUrl="/login">
                 <Button
-                  variant="outline"
-                  className="w-full justify-start text-muted-foreground hover:text-primary hover:border-primary/50"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="h-4 w-4" />
                   <span>Sign Out</span>
                 </Button>
               </SignOutButton>
