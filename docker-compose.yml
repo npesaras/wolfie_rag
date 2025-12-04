@@ -1,0 +1,40 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: rag-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rag_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./rag/postgres/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure
+
+  api:
+    build: .
+    container_name: rag-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/rag_db
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DATA_DIR=/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./rag/app:/app/app
+      - ./rag/data:/app/data
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: on-failure
+
+volumes:
+  pgdata:
