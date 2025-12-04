@@ -1,6 +1,12 @@
-import FooterSection from "@/components/HomePage/HomePageFooter";
 import { HeroHeader } from "@/components/HomePage/HomePageHeader";
 import HomePageHeroSection from "@/components/HomePage/HomePageHeroSection";
+import dynamic from "next/dynamic";
+
+// Lazy load components that are below the fold
+const FooterSection = dynamic(() => import("@/components/HomePage/HomePageFooter"));
+
+// Cache this page for 1 hour (ISR)
+export const revalidate = 3600;
 
 /**
  * Homepage
@@ -29,7 +35,7 @@ export default async function Homepage() {
         {/* Hero Section */}
         <HomePageHeroSection />
 
-        {/* Footer Section*/}
+        {/* Footer Section - Lazy Loaded */}
         <FooterSection />
       </div>
     </div>

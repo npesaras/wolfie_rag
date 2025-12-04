@@ -29,31 +29,22 @@ export default function ProspectusPage() {
   ];
 
   return (
-    <div className="relative w-full">
-      {/* Improved Dreamy Sky Gradient - Fixed to cover entire page */}
-      <div
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle at 30% 70%, rgba(173, 216, 230, 0.25), transparent 50%),
-            radial-gradient(circle at 70% 30%, rgba(255, 182, 193, 0.3), transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(240, 240, 255, 0.4), transparent 70%)`,
-        }}
-      />
+    <div className="min-h-screen bg-slate-50">
+      {/* Content wrapper */}
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Header Section - Pink gradient */}
+        <div className="bg-gradient-to-br from-primary/10 to-sidebar/10 rounded-xl p-8 border border-primary/20">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
+            Prospectus
+          </h1>
+          <p className="text-muted-foreground">
+            Download free prospectus and program information for all our
+            degree programs
+          </p>
+        </div>
 
-      <div className="relative z-10 min-h-screen p-6">
-        <div className="max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              Prospectus
-            </h1>
-            <p className="text-muted-foreground">
-              Download free prospectus and program information for all our
-              degree programs
-            </p>
-          </div>
-
+        {/* Main Content Panel */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
             {programs.map((program) => (

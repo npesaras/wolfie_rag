@@ -1,8 +1,9 @@
 "use client";
 
 import { SignOutButton } from "@clerk/nextjs";
-import { BookOpen, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
+import { Archive, BookOpen, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -35,6 +36,8 @@ export function DashboardSidebar({
 }: {
   user?: DashboardLayoutProps["user"];
 }) {
+  const pathname = usePathname();
+
   const menuItems = [
     {
       title: "Dashboard",
@@ -49,7 +52,7 @@ export function DashboardSidebar({
     {
       title: "CCS Resources",
       url: "/knowledge-base",
-      icon: BookOpen,
+      icon: Archive,
     },
     {
       title: "Ask Wolfie",
@@ -62,7 +65,7 @@ export function DashboardSidebar({
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-          <span className="font-semibold">Wolfie</span>
+          <span className="font-semibold">CCS Hub</span>
         </div>
       </SidebarHeader>
 
@@ -70,16 +73,27 @@ export function DashboardSidebar({
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.url}>
-                <SidebarMenuButton asChild>
-                  <Link href={item.url}>
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {menuItems.map((item) => {
+              const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url));
+              return (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive}
+                    className={`h-12 px-4 text-base font-medium transition-colors ${
+                      isActive
+                        ? "bg-primary/10 text-primary border-r-2 border-primary"
+                        : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <Link href={item.url}>
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
