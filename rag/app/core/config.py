@@ -17,10 +17,10 @@ class Settings(BaseSettings):
     chunk_overlap: int = 200
     top_k_results: int = 5
 
-    # Data directories
-    data_dir: Path = Path("/app/data")
-    upload_dir: Path = Path("/app/data/uploads")
-    source_dir: Path = Path("/app/data/source")
+    # Data directories (relative to project root)
+    data_dir: Path = Path(__file__).parent.parent.parent / "data"
+    upload_dir: Path = Path(__file__).parent.parent.parent / "data" / "uploads"
+    source_dir: Path = Path(__file__).parent.parent.parent / "data" / "source"
 
     # File settings
     allowed_extensions: list = [".pdf", ".docx", ".pptx", ".html", ".md", ".csv", ".xlsx"]
