@@ -31,6 +31,14 @@ services:
       - ollama:/root/.ollama
     environment:
       - OLLAMA_HOST=0.0.0.0
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull nomic-embed-text
+        ollama pull llama3.2
+        wait
     restart: unless-stopped
     networks:
       - rag-network
@@ -40,44 +48,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
-
-  # Backend RAG API
-  backend:
-    build:
-      context: ./rag
-      dockerfile: Dockerfile
-    container_name: rag-backend
-    ports:
-      - "8001:8001"
-    environment:
-      # Database configuration
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/rag_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=rag_db
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-      # Ollama configuration
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - EMBEDDING_MODEL=nomic-embed-text
-      - CHAT_MODEL=llama3.2
-    volumes:
-      - ./rag/data/source:/app/data/source:ro
-      - ./rag/data/uploads:/app/data/uploads
-    depends_on:
-      db:
-        condition: service_healthy
-      ollama:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - rag-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/status"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
 networks:
   rag-network:
