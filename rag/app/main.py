@@ -210,11 +210,11 @@ async def process_source_files():
 
             logger.info(f"✅ Fresh training complete: {successful_files}/{len(files_to_process)} files, {total_chunks} total chunks")
             logger.info(f"📊 System ready - Watchdog will monitor for file updates")
+            break  # Exit the async for loop after one iteration
 
         except Exception as e:
             logger.error(f"Error processing source files: {e}")
-        finally:
-            break  # Exit the async for loop after one iteration
+            break  # Exit the async for loop after error
 
 app = FastAPI(
     title="RAG System API",
