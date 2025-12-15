@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { DownloadProspectusButton } from "../_component/DownloadProspectusButton";
 
 interface ProgramDetails {
   title: string;
@@ -11,6 +12,10 @@ interface ProgramDetails {
   careerProspects: string[];
   duration: string;
   units: string;
+  prospectusFile?: {
+    bucketId: string;
+    fileId: string;
+  };
 }
 
 const programData: Record<string, ProgramDetails> = {
@@ -38,6 +43,10 @@ const programData: Record<string, ProgramDetails> = {
     ],
     duration: "4 years",
     units: "145 (15)",
+    prospectusFile: {
+      bucketId: "693ffcc0000552fcd8c1",
+      fileId: "computer-science-prospectus",
+    },
   },
   "information-technology": {
     title: "BS-Information Technology",
@@ -63,6 +72,10 @@ const programData: Record<string, ProgramDetails> = {
     ],
     duration: "4 years",
     units: "120",
+    prospectusFile: {
+      bucketId: "693ffcc0000552fcd8c1",
+      fileId: "information-technology-prospectus",
+    },
   },
   "information-system": {
     title: "BS-Information System",
@@ -88,6 +101,10 @@ const programData: Record<string, ProgramDetails> = {
     ],
     duration: "4 years",
     units: "120",
+    prospectusFile: {
+      bucketId: "693ffcc0000552fcd8c1",
+      fileId: "information-system-prospectus",
+    },
   },
   "computer-application": {
     title: "BS-Computer Application",
@@ -96,6 +113,10 @@ const programData: Record<string, ProgramDetails> = {
       "Application-focused program emphasizing software development, mobile applications, web technologies, and practical programming skills.",
     overview:
       "Understand the design & development of hardware devices and software programs through specialized skills in Embedded System and Internet of Things (IoT). To sharpen the mathematical analysis and produce patentable innovations to cater the demands of Information and Communication Technology (ICT) in helping to solve the emerging and future global problems.",
+    prospectusFile: {
+      bucketId: "693ffcc0000552fcd8c1",
+      fileId: "computer-application-prospectus",
+    },
     keyFeatures: [
       "Web application development",
       "Mobile app development (iOS & Android)",
@@ -227,9 +248,10 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
           <p className="text-muted-foreground mb-4">
             Start your journey in {program.title}
           </p>
-          <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
-            Download Prospectus
-          </Button>
+          <DownloadProspectusButton
+            programTitle={program.title}
+            prospectusFile={program.prospectusFile}
+          />
         </div>
       </div>
     </div>
