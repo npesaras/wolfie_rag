@@ -97,7 +97,7 @@ export default function WolfieChatPage() {
           formData.append('doc_id', `doc_${Date.now()}_${i}`);
           formData.append('file', file);
 
-          const ingestResponse = await fetch('http://localhost:8001/api/v1/ingest', {
+          const ingestResponse = await fetch('http://localhost:8000/api/v1/ingest', {
             method: 'POST',
             body: formData,
           });
@@ -123,7 +123,7 @@ export default function WolfieChatPage() {
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
       try {
-        const queryResponse = await fetch('http://localhost:8001/api/v1/query', {
+        const queryResponse = await fetch('http://localhost:8000/api/v1/query', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
