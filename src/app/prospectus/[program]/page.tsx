@@ -241,17 +241,19 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
         </section>
 
         {/* CTA Section */}
-        <div className="bg-card border border-border rounded-lg p-6 text-center">
-          <h3 className="text-xl font-bold text-foreground mb-2">
+        <div className="bg-gradient-to-br from-primary/10 to-sidebar/10 border-2 border-primary/30 rounded-xl p-8 text-center shadow-lg">
+          <h3 className="text-3xl font-bold text-foreground mb-3">
             Ready to Apply?
           </h3>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-lg text-muted-foreground mb-6">
             Start your journey in {program.title}
           </p>
-          <DownloadProspectusButton
-            programTitle={program.title}
-            prospectusFile={program.prospectusFile}
-          />
+          <div className="flex justify-center">
+            <DownloadProspectusButton
+              programTitle={program.title}
+              prospectusFile={program.prospectusFile}
+            />
+          </div>
         </div>
       </div>
     </div>
