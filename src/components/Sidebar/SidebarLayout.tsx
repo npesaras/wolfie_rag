@@ -51,7 +51,7 @@ export function DashboardSidebar({
     },
     {
       title: "CCS Resources",
-      url: "/knowledge-base",
+      url: "/resources",
       icon: Archive,
     },
     {
