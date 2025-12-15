@@ -68,22 +68,23 @@ export function DownloadProspectusButton({
       <Button
         onClick={handleDownload}
         disabled={isDownloading || !prospectusFile}
-        className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90 disabled:opacity-50"
+        size="lg"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
       >
         {isDownloading ? (
           <>
-            <span className="animate-spin mr-2">⏳</span>
+            <span className="animate-spin mr-2 text-xl">⏳</span>
             Downloading...
           </>
         ) : (
           <>
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-5 h-5 mr-2" />
             Download Prospectus
           </>
         )}
       </Button>
       {!prospectusFile && (
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-sm text-muted-foreground mt-3">
           Prospectus file coming soon
         </p>
       )}
